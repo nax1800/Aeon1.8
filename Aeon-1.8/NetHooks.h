@@ -71,7 +71,12 @@ namespace NetHooks
 		auto CheatManager = (UFortCheatManager*)(Globals::GameplayStatics::Get()->STATIC_SpawnObject(UFortCheatManager::StaticClass(), PlayerController));
 		PlayerController->CheatManager = CheatManager;
 		CheatManager->BackpackSetSize(5);
+
+		if(Globals::bInfiniteAmmo)
 		CheatManager->ToggleInfiniteAmmo();
+
+		if (Globals::bInfiniteResources)
+			CheatManager->BuildFree();
 
 		Inventory::SetupInventory(PlayerController);
 		Inventory::UpdateInventory(PlayerController);

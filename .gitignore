@@ -1,0 +1,9 @@
+
+*.db
+.vs/Aeon-1.8/v17/Browse.VC.opendb
+.vs/Aeon-1.8/v17/Browse.VC.db-wal
+.vs/Aeon-1.8/v17/Browse.VC.db-shm
+.vs/Aeon-1.8/v17/.suo
+.vs/Aeon-1.8/v17/ipch/AutoPCH/c16e05839dbbe247/FRAMEWORK.ipch
+.vs/Aeon-1.8/FileContentIndex/read.lock
+.vs/Aeon-1.8/FileContentIndex/6229469d-6df7-4d08-bfde-6eea401320da.vsidx

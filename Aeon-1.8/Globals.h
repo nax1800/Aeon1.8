@@ -51,6 +51,20 @@ namespace Globals
 		}
 	}
 
+	namespace GameSession
+	{
+		AFortGameSession* Get()
+		{
+			auto A = (AFortGameSession*)GameMode::Get()->GameSession;
+			return A;
+		}
+
+		void SetMaxPlayers(int Max)
+		{
+			Get()->MaxPlayers = Max;
+		}
+	}
+
 	namespace GameplayStatics
 	{
 		UGameplayStatics* Get()

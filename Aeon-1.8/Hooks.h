@@ -28,7 +28,7 @@ namespace Hooks
 			bStarted = true;
 
 			Globals::GameState::ChangePlaylistID(Globals::PlaylistID);
-
+			Globals::GameSession::SetMaxPlayers(Globals::MaxPlayers);
 			Globals::GameMode::StartMatch();
 
 			Globals::LocalPlayerController::Get()->CheatManager->DestroyAll(APlayerController::StaticClass());
