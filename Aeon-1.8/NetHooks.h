@@ -15,13 +15,15 @@ namespace NetHooks
 		if (Server::bBusStarted)
 			return;
 
-		if (std::to_string(a3) == "4") {
-			NetConnection->CurrentNetSpeed = 30000;
+		string A3 = to_string(a3);
+
+		if (A3 == "4") {
+			NetConnection->CurrentNetSpeed = Globals::NetSpeed;
 			return;
 		}
 
-		Log("AOnlineBeaconHost::NotifyControlMessage Called: " + std::to_string(a3) + "\n");
-		Log("OpenChannels Count: " + std::to_string(NetConnection->OpenChannels.Num()) + "\n");
+		Log("AOnlineBeaconHost::NotifyControlMessage Called: " + A3 + "\n");
+		Log("OpenChannels Count: " + to_string(NetConnection->OpenChannels.Num()) + "\n");
 		return UWorld_NotifyControlMessage(Globals::World::Get(), NetConnection, a3, a4);
 	}
 

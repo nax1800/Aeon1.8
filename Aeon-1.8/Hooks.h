@@ -8,9 +8,9 @@ namespace Hooks
 	void(*ProcessEvent)(void*, void*, void*);
 	void ProcessEventHook(UObject* Object, UFunction* Function, void* Parameters)
 	{
-		auto FunctionName = Function->GetFullName();
+		auto FunctionName = Helpers::GetObjectName(Function);
 
-		if (FunctionName.contains("BP_PlayButton"))
+		if (FunctionName == "Function AthenaMatchmakingWidget.AthenaMatchmakingWidget_C.BndEvt__BP_PlayButton_K2Node_ComponentBoundEvent_1_CommonButtonClicked__DelegateSignature")
 		{
 			Globals::LocalPlayerController::SwitchLevel();
 		}
@@ -78,15 +78,11 @@ namespace Hooks
 			auto Player = (AFortPlayerController*)Object;
 			auto Params = (AFortPlayerController_ServerAttemptInteract_Params*)Parameters;
 
-			auto ReceivingActor = (AKeepItemContainer*)Params->ReceivingActor;
+			auto ReceivingActor = (ABuildingContainer*)Params->ReceivingActor;
 			if (ReceivingActor && ReceivingActor->GetFullName().contains("Tiered_Chest"))
 			{
-				ReceivingActor->InitializeContainer(2);
 				ReceivingActor->bAlreadySearched = true;
 				ReceivingActor->OnRep_bAlreadySearched();
-				auto ps = (*Player->PlayerState);
-				ReceivingActor->SearchedBy.Add((AFortPlayerState)ps);
-				ReceivingActor->OnRep_SearchedBy();
 				ReceivingActor->SearchBounceData.SearchAnimationCount++;
 				auto Location = ReceivingActor->K2_GetActorLocation();
 				Loot::SpawnPickup(Location, Loot::GetRandomWeapon(), 1);
@@ -181,7 +177,7 @@ namespace Hooks
 			Player->bHasClientFinishedLoading = Params->bInHasFinishedLoading;
 		}
 
-		if (FunctionName== "Function FortniteGame.FortPlayerController.ReturnToMainMenu")
+		if (FunctionName == "Function FortniteGame.FortPlayerController.ReturnToMainMenu")
 		{
 			auto Player = (AFortPlayerController*)Object;
 			auto Params = (APlayerController_ClientReturnToMainMenu_Params*)Parameters;
@@ -195,17 +191,24 @@ namespace Hooks
 			if (Params)
 			{
 				auto BuildClass = Params->BuildingClassData.BuildingClass;
-				auto Loc = Params->BuildLoc;
-				auto Rot = Params->BuildRot;
-
-				auto BuildingActor = Globals::GameplayStatics::SpawnActor<ABuildingSMActor>(BuildClass, Loc, Rot);
-				if (BuildingActor)
+				auto Location = Params->BuildLoc;
+				auto Rotation = Params->BuildRot;
+				
+				auto BuildingActor = Globals::GameplayStatics::SpawnActor<ABuildingSMActor>(BuildClass, Location, Rotation);
+				if (BuildingActor && Player && BuildClass)
 				{
 					BuildingActor->bPlayerPlaced = true;
 					BuildingActor->SetMirrored(Params->bMirrored);
 					BuildingActor->InitializeKismetSpawnedBuildingActor(BuildingActor, Player); // 0x0000000000000016 crash
 				}
 			}
+		}
+
+		if (FunctionName == "Function FortniteGame.FortGameModeAthena.OnAircraftEnteredDropZone")
+		{
+			auto GameMode = Globals::GameMode::Get();
+			auto GameState = Globals::GameState::Get();
+			auto Aircraft = GameState->GetAircraft();
 		}
 
 		if (FunctionName == "Function Engine.Actor.ReceiveDestroyed" && Server::BeaconHost)

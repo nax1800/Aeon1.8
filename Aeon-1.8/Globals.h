@@ -49,6 +49,11 @@ namespace Globals
 		{
 			Get()->CurrentPlaylistId = ID;
 		}
+
+		void LateGame()
+		{
+
+		}
 	}
 
 	namespace GameSession
@@ -182,6 +187,8 @@ namespace Globals
 	static bool bInfiniteResources = true;
 	static int MaxPlayers = 10;
 	static int PlaylistID = 2; // 2 = Solo, 
+	static int NetSpeed = 30000; // Don't touch
+	static FVector BusLocation = { 2500 , 250, 500 };
 
 	void Init()
 	{

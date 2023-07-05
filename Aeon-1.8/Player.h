@@ -26,15 +26,20 @@ namespace Player
 		HealthSet->OnRep_CurrentShield();
 	}
 
+	void FixHealth(APlayerPawn_Athena_C* Pawn)
+	{
+		Pawn->SetMaxHealth(100.0f);
+		Pawn->SetHealth(100.0f);
+	}
+
 
 	APlayerPawn_Athena_C* Spawn(AFortPlayerController* PlayerController, FVector Location)
 	{
 		auto Pawn = Globals::GameplayStatics::SpawnActor<APlayerPawn_Athena_C>(Location);
 		Pawn->SetOwner(PlayerController);
 		PlayerController->Possess(Pawn);
-
-		Pawn->SetMaxHealth(100.0f);
-		Pawn->SetHealth(100.0f);
+ 
+		FixHealth(Pawn);
 		FixShield(Pawn);
 		RemoveRegenEffects(Pawn);
 

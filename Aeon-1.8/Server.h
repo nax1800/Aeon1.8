@@ -57,7 +57,7 @@ namespace Server
 		return PlayerStarts[RanNum];
 	}
 
-	bool CheckIfCheat(string A)
+	bool CheckIfCheatFunction(string A)
 	{
 		for (int i = 0; i < CheatFunctions.size(); i++)
 			if (CheatFunctions[i] == A)

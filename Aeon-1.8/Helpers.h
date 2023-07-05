@@ -28,4 +28,14 @@ namespace Helpers
 		auto A = Player->PlayerState;
 		return GetPlayerName(A);
 	}
+
+	string GetObjectName(UObject* Object)
+	{
+		if (Object)
+		{
+			auto ObjectName = Object->GetFullName();
+			return ObjectName;
+		}
+		return "";
+	}
 }

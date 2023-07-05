@@ -91,12 +91,14 @@ namespace Inventory
         A->Inventory.ReplicatedEntries.Add(WorldEditToolItem->ItemEntry);
         A->Inventory.ItemInstances.Add(WorldEditToolItem);
 
-        auto WoodItem = Wood->CreateTemporaryItemInstanceBP(1, 0);
+        /*  auto WoodItem = Wood->CreateTemporaryItemInstanceBP(1, 0);
         auto WorldWoodItem = reinterpret_cast<UFortWorldItem*>(WoodItem);
         WorldWoodItem->ItemEntry.Count = 500;
         A->Inventory.ReplicatedEntries.Add(WorldWoodItem->ItemEntry);
         A->Inventory.ItemInstances.Add(WorldWoodItem);
-        B->ServerAddItemInternal(WoodItem->GetItemGuid(), EFortQuickBars::Secondary, 0);
+        B->ServerAddItemInternal(WoodItem->GetItemGuid(), EFortQuickBars::Secondary, 0); */
+
+        AddItem(Player, Wood, 999, EFortQuickBars::Secondary, 0);
 
         auto PickaxeItem = Pickaxe->CreateTemporaryItemInstanceBP(1, 0);
         auto WorldPickaxeItem = reinterpret_cast<UFortWorldItem*>(PickaxeItem);
