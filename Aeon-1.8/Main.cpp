@@ -49,6 +49,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReason, LPVOID lpVoid)
     {
         Setup();
         DisableThreadLibraryCalls(hModule);
+        if(Globals::bEnableMenu)
         CreateThread(nullptr, 0, MenuThread, hModule, 0, nullptr);
     }
 
