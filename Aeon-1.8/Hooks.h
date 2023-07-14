@@ -108,7 +108,7 @@ namespace Hooks
 				if (Pawn)
 					Pawn->K2_DestroyActor();
 
-				auto Aircraft = ((AFortGameStateAthena*)Globals::World::Get()->GameState)->GetAircraft();
+				auto Aircraft = Helpers::CastObject<AFortGameStateAthena>(Globals::World::Get()->GameState)->GetAircraft();
 				if (Aircraft)
 					Player::Spawn(Player, Aircraft->K2_GetActorLocation());
 			}

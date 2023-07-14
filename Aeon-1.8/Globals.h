@@ -176,6 +176,21 @@ namespace Globals
 		}
 	}
 
+	namespace KismetMathLibrary
+	{
+		UKismetMathLibrary* Get()
+		{
+			auto A = UObject::FindObject<UKismetMathLibrary>("KismetMathLibrary Engine.Default__KismetMathLibrary");
+			return A;
+		}
+
+		int RandomIntegerInRange(int Min, int Max)
+		{
+			auto A = Get()->STATIC_RandomIntegerInRange(Min, Max);
+			return A;
+		}
+	}
+
 	namespace KismetTextLibrary
 	{
 		UKismetTextLibrary* Get()
