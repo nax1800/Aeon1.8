@@ -13,26 +13,6 @@ struct InventoryPointer
     AFortInventory* WorldInventory;
 };
 
-struct BuildPreviewPointer
-{
-    unsigned char pad[0x1788];
-    ABuildingPlayerPrimitivePreview* BuildPreviewMarker;
-};
-
-struct CurrentBuildableClassPointer
-{
-    unsigned char pad[0x1940];
-    UClass* CurrentBuildableClass;
-};
-
-struct AFortAsBuildPreviewMID
-{
-public:
-    unsigned char UnknownData00[0x1928];
-    class UMaterialInstanceDynamic* BuildPreviewMarkerMID;
-};
-
-
 namespace Inventory
 {
     AFortInventory* GetInventory(AFortPlayerControllerAthena* Player)
