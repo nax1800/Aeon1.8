@@ -31,15 +31,28 @@ void Setup()
 
     Log(AEON);
     auto GObjectAddress = Utils::FindPattern("\x48\x8D\x0D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8B\xD6", "xxx????x????x????x????xxx");
+    if (!GObjectAddress)
+    {  
+        Log("GObject NULL!");
+        return;
+    }
+
     auto GObjectOffset = *reinterpret_cast<uint32_t*>(GObjectAddress + 3);
     SDK::UObject::GObjects = reinterpret_cast<SDK::FUObjectArray*>(GObjectAddress + 7 + GObjectOffset);
 
     auto GNameAddress = Utils::FindPattern("\x48\x8B\x05\x00\x00\x00\x00\x48\x85\xC0\x75\x50\xB9\x00\x00\x00\x00\x48\x89\x5C\x24", "xxx????xxxxxx????xxxx");
+    if (!GNameAddress)
+    {
+        Log("GNames NULL!");
+        return;
+    }
     auto GNameOffset = *reinterpret_cast<uint32_t*>(GNameAddress + 3);
     SDK::FName::GNames = *reinterpret_cast<SDK::TNameEntryArray**>(GNameAddress + 7 + GNameOffset);
 
     MH_Initialize();
-    Addresses::Init();
+    bool bInit = Addresses::Init();
+
+    if(bInit)
     Hooks::Init();
 }
 

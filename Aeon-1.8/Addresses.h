@@ -45,6 +45,15 @@ namespace Addresses
 		OnReload = Utils::FindPattern("\x40\x53\x56\x41\x54\x41\x55\x41\x57\x48\x83\xec\x00\x44\x8b\xea", "xxxxxxxxxxxx?xxx");
 		CollectGarbageInternal = Utils::FindPattern("\x48\x8B\xC4\x48\x89\x58\x08\x88\x50\x10", "xxxxxxxxxx");
 
+		if (!CreateChannel || !SetChannelActor || !ReplicateActor || !CallPreReplication || !TickFlush || !SendClientAdjustment
+			|| !ActorChannelClose || !IsNetRelevantFor || !NotifyActorDestroyed || !InitHost || !WelcomePlayer || !SpawnPlayActor
+			|| !WorldNotifyControlMessage || !BeaconNotifyControlMessage || !KickPatch || !InternalTryActivateAbility || !OnReload
+			|| !CollectGarbageInternal)
+		{
+			Log("Pattern NULL!\n");
+			return false;
+		}
+
 		Log("Addresses Init.\n");
 		return true;
 	}

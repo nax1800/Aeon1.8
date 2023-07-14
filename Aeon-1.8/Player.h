@@ -32,7 +32,25 @@ namespace Player
 		Pawn->SetHealth(100.0f);
 	}
 
+	APlayerPawn_Generic_C* SpawnSTW(AFortPlayerController* PlayerController, FVector Location)
+	{
+		auto Pawn = Globals::GameplayStatics::SpawnActor<APlayerPawn_Generic_C>(Location);
+		Pawn->SetOwner(PlayerController);
+		PlayerController->Possess(Pawn);
 
+		PlayerController->ClientForceProfileQuery();
+
+		((AFortPlayerStateOutpost*)PlayerController->PlayerState)->OnRep_CharacterParts();
+
+		Pawn->CharacterMovement->bReplicates = true;
+		Pawn->SetReplicateMovement(true);
+		Pawn->OnRep_ReplicatedBasedMovement();
+		Pawn->OnRep_ReplicatedMovement();
+
+		return Pawn;
+	}
+
+	//Athena
 	APlayerPawn_Athena_C* Spawn(AFortPlayerController* PlayerController, FVector Location)
 	{
 		auto Pawn = Globals::GameplayStatics::SpawnActor<APlayerPawn_Athena_C>(Location);

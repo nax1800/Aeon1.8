@@ -176,6 +176,27 @@ namespace Globals
 		}
 	}
 
+	namespace KismetTextLibrary
+	{
+		UKismetTextLibrary* Get()
+		{
+			auto A = UObject::FindObject<UKismetTextLibrary>("KismetTextLibrary Engine.Default__KismetTextLibrary");
+			return A;
+		}
+
+		FText StringToText(FString String)
+		{
+			auto A = Get()->STATIC_Conv_StringToText(String);
+			return A;
+		}
+
+		FString TextToString(FText Text)
+		{
+			auto A = Get()->STATIC_Conv_TextToString(Text);
+			return A;
+		}
+	}
+
 	UCustomCharacterPart* BodyPart;
 	UCustomCharacterPart* HeadPart;
 

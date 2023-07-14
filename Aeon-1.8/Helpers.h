@@ -11,22 +11,24 @@ namespace Helpers
 			return false;
 	}
 
-	string GetPlayerName(APlayerState* Player)
+	template<typename T = UObject>
+	T* CastObject(UObject* Object)
 	{
-		auto A = Player->PlayerName.ToString();
-		return A;
+		return reinterpret_cast<T>(Object);
 	}
 
-	string GetPlayerName(APlayerController* Player)
+	string GetPlayerName(AActor* Player)
 	{
-		auto A = Player->PlayerState;
-		return GetPlayerName(A);
-	}
+		if (Player->IsA(APlayerState::StaticClass()))
+			return CastObject<APlayerState>(Player)->PlayerName.ToString();
 
-	string GetPlayerName(APawn* Player)
-	{
-		auto A = Player->PlayerState;
-		return GetPlayerName(A);
+		if (Player->IsA(APlayerController::StaticClass()))
+			return CastObject<APlayerController>(Player)->PlayerState->PlayerName.ToString();
+
+		if (Player->IsA(APawn::StaticClass()))
+			return CastObject<APawn>(Player)->PlayerState->PlayerName.ToString();
+
+		return "";
 	}
 
 	string GetObjectName(UObject* Object)

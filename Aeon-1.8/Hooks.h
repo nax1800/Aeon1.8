@@ -10,6 +10,11 @@ namespace Hooks
 	{
 		auto FunctionName = Helpers::GetObjectName(Function);
 
+		if (FunctionName.contains("StartButton"))
+		{
+			Log(FunctionName);
+		}
+
 		if (FunctionName == "Function AthenaMatchmakingWidget.AthenaMatchmakingWidget_C.BndEvt__BP_PlayButton_K2Node_ComponentBoundEvent_1_CommonButtonClicked__DelegateSignature")
 		{
 			Globals::LocalPlayerController::SwitchLevel();
@@ -79,7 +84,7 @@ namespace Hooks
 			auto Params = (AFortPlayerController_ServerAttemptInteract_Params*)Parameters;
 
 			auto ReceivingActor = (ABuildingContainer*)Params->ReceivingActor;
-			if (ReceivingActor && ReceivingActor->GetFullName().contains("Tiered_Chest"))
+			if (ReceivingActor && Helpers::GetObjectName(ReceivingActor).contains("Tiered_Chest"))
 			{
 				ReceivingActor->bAlreadySearched = true;
 				ReceivingActor->OnRep_bAlreadySearched();

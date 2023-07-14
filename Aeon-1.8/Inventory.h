@@ -68,7 +68,8 @@ namespace Inventory
         WorldItem->ItemEntry.Count = Count;
         A->Inventory.ReplicatedEntries.Add(WorldItem->ItemEntry);
         A->Inventory.ItemInstances.Add(WorldItem);
-        B->ServerAddItemInternal(WorldItem->GetItemGuid(), QuickBar, Slot);
+        if(QuickBar < EFortQuickBars::EFortQuickBars_MAX)
+            B->ServerAddItemInternal(WorldItem->GetItemGuid(), QuickBar, Slot);
         UpdateInventory(Player);
     }
 
@@ -78,6 +79,9 @@ namespace Inventory
         auto B = GetQuickBars(Player);
 
         static auto Pickaxe = FindObjectFast<UFortItemDefinition>("/Game/Athena/Items/Weapons/WID_Harvest_Pickaxe_Athena_C_T01.WID_Harvest_Pickaxe_Athena_C_T01");
+        static auto Rifle = Loot::GetRandomRifle();
+        static auto Shotgun = Loot::GetRandomShotgun();
+        static auto Sniper = Loot::GetRandomSniper();
         static auto EditTool = FindObjectFast<UFortEditToolItemDefinition>("/Game/Items/Weapons/BuildingTools/EditTool.EditTool");
         static auto Wall = FindObjectFast<UFortBuildingItemDefinition>("/Game/Items/Weapons/BuildingTools/BuildingItemData_Wall.BuildingItemData_Wall");
         static auto Floor = FindObjectFast<UFortBuildingItemDefinition>("/Game/Items/Weapons/BuildingTools/BuildingItemData_Floor.BuildingItemData_Floor");
@@ -85,51 +89,26 @@ namespace Inventory
         static auto Roof = FindObjectFast<UFortBuildingItemDefinition>("/Game/Items/Weapons/BuildingTools/BuildingItemData_RoofS.BuildingItemData_RoofS");
         static auto Wood = UObject::FindObject<UFortResourceItemDefinition>("FortResourceItemDefinition WoodItemData.WoodItemData");
 
-        auto EditToolItem = EditTool->CreateTemporaryItemInstanceBP(1, 0);
-        auto WorldEditToolItem = (UFortWorldItem*)EditToolItem;
-        WorldEditToolItem->ItemEntry.Count = 1;
-        A->Inventory.ReplicatedEntries.Add(WorldEditToolItem->ItemEntry);
-        A->Inventory.ItemInstances.Add(WorldEditToolItem);
+        AddItem(Player, EditTool, 1, EFortQuickBars::EFortQuickBars_MAX, 0);
 
-        /*  auto WoodItem = Wood->CreateTemporaryItemInstanceBP(1, 0);
-        auto WorldWoodItem = reinterpret_cast<UFortWorldItem*>(WoodItem);
-        WorldWoodItem->ItemEntry.Count = 500;
-        A->Inventory.ReplicatedEntries.Add(WorldWoodItem->ItemEntry);
-        A->Inventory.ItemInstances.Add(WorldWoodItem);
-        B->ServerAddItemInternal(WoodItem->GetItemGuid(), EFortQuickBars::Secondary, 0); */
+        if(!Globals::bInfiniteResources)
+        AddItem(Player, Wood, 100, EFortQuickBars::Secondary, 0);
 
-        AddItem(Player, Wood, 999, EFortQuickBars::Secondary, 0);
+        AddItem(Player, Pickaxe, 1, EFortQuickBars::Primary, 0);
 
-        auto PickaxeItem = Pickaxe->CreateTemporaryItemInstanceBP(1, 0);
-        auto WorldPickaxeItem = reinterpret_cast<UFortWorldItem*>(PickaxeItem);
-        WorldPickaxeItem->ItemEntry.Count = 1;
-        A->Inventory.ReplicatedEntries.Add(WorldPickaxeItem->ItemEntry);
-        A->Inventory.ItemInstances.Add(WorldPickaxeItem);
-        B->ServerAddItemInternal(PickaxeItem->GetItemGuid(), EFortQuickBars::Primary, 0);
+        if (Globals::bLateGame)
+        {
+            AddItem(Player, Rifle, 1, EFortQuickBars::Primary, 1);
+            AddItem(Player, Shotgun, 1, EFortQuickBars::Primary, 2);
+            AddItem(Player, Sniper, 1, EFortQuickBars::Primary, 3);
+            AddItem(Player, Loot::GetRandomCosumable(), 1, EFortQuickBars::Primary, 4);
+            AddItem(Player, Loot::GetRandomCosumable(), 1, EFortQuickBars::Primary, 5);
+        }
 
-        auto WallBuildItem = Wall->CreateTemporaryItemInstanceBP(1, 0);
-        auto WallWorldBuildItem = reinterpret_cast<UFortWorldItem*>(WallBuildItem);
-        A->Inventory.ReplicatedEntries.Add(WallWorldBuildItem->ItemEntry);
-        A->Inventory.ItemInstances.Add(WallWorldBuildItem);
-        B->ServerAddItemInternal(WallWorldBuildItem->GetItemGuid(), EFortQuickBars::Secondary, 0);
-
-        auto FloorBuildItem = Floor->CreateTemporaryItemInstanceBP(1, 0);
-        auto FloorWorldBuildItem = reinterpret_cast<UFortWorldItem*>(FloorBuildItem);
-        A->Inventory.ReplicatedEntries.Add(FloorWorldBuildItem->ItemEntry);
-        A->Inventory.ItemInstances.Add(FloorWorldBuildItem);
-        B->ServerAddItemInternal(FloorWorldBuildItem->GetItemGuid(), EFortQuickBars::Secondary, 1);
-
-        auto StairBuildItem = Stairs->CreateTemporaryItemInstanceBP(1, 0);
-        auto StairWorldBuildItem = reinterpret_cast<UFortWorldItem*>(StairBuildItem);
-        A->Inventory.ReplicatedEntries.Add(StairWorldBuildItem->ItemEntry);
-        A->Inventory.ItemInstances.Add(StairWorldBuildItem);
-        B->ServerAddItemInternal(StairWorldBuildItem->GetItemGuid(), EFortQuickBars::Secondary, 2);
-
-        auto RoofBuildItem = Roof->CreateTemporaryItemInstanceBP(1, 0);
-        auto RoofWorldBuildItem = reinterpret_cast<UFortWorldItem*>(RoofBuildItem);
-        A->Inventory.ReplicatedEntries.Add(RoofWorldBuildItem->ItemEntry);
-        A->Inventory.ItemInstances.Add(RoofWorldBuildItem);
-        B->ServerAddItemInternal(RoofWorldBuildItem->GetItemGuid(), EFortQuickBars::Secondary, 3);
+        AddItem(Player, Wall, 1, EFortQuickBars::Secondary, 0);
+        AddItem(Player, Floor, 1, EFortQuickBars::Secondary, 1);
+        AddItem(Player, Stairs, 1, EFortQuickBars::Secondary, 2);
+        AddItem(Player, Roof, 1, EFortQuickBars::Secondary, 3);
     }
 
     void SetupInventory(AFortPlayerControllerAthena* Player)
