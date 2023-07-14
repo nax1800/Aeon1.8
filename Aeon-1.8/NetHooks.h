@@ -102,27 +102,16 @@ namespace NetHooks
 	{
 		Log("NetHooks Init.\n");	
 
-		UWorld_NotifyControlMessage = decltype(UWorld_NotifyControlMessage)(Utils::BaseAddress() + 0x251ADA0);
+		UWorld_NotifyControlMessage = decltype(UWorld_NotifyControlMessage)(Addresses::WorldNotifyControlMessage);
 		TickFlush = decltype(TickFlush)(Addresses::TickFlush);
 		SpawnPlayActor = decltype(SpawnPlayActor)(Addresses::SpawnPlayActor);
 		NotifyActorDestroyed = decltype(NotifyActorDestroyed)(Addresses::NotifyActorDestroyed);
 
-		MH_CreateHook((void*)(Addresses::BeaconNotifyControlMessage), AOnlineBeaconHost_NotifyControlMessageHook, nullptr);
-		MH_EnableHook((void*)(Addresses::BeaconNotifyControlMessage));
-
-		MH_CreateHook((void*)(Addresses::WelcomePlayer), WelcomePlayerHook, (void**)(&WelcomePlayer));
-		MH_EnableHook((void*)(Addresses::WelcomePlayer));
-
-		MH_CreateHook((void*)(Utils::BaseAddress() + 0x224CD40), SpawnPlayActorHook, (void**)(&SpawnPlayActor));
-		MH_EnableHook((void*)(Utils::BaseAddress() + 0x224CD40));
-
-		MH_CreateHook((void*)(Addresses::KickPatch), KickPatch, nullptr);
-		MH_EnableHook((void*)(Addresses::KickPatch));
-
-		MH_CreateHook((LPVOID)(Addresses::CollectGarbageInternal), CollectGarbageInternalHook, (LPVOID*)(CollectGarbageInternal));
-		MH_EnableHook((LPVOID)(Addresses::CollectGarbageInternal));
-
-		MH_CreateHook((void*)(Addresses::TickFlush), TickFlushHook, (void**)(&TickFlush));
-		MH_EnableHook((void*)(Addresses::TickFlush));
+		Utils::AddHook((void*)(Addresses::BeaconNotifyControlMessage), AOnlineBeaconHost_NotifyControlMessageHook, nullptr);
+		Utils::AddHook((void*)(Addresses::WelcomePlayer), WelcomePlayerHook, (void**)(&WelcomePlayer));
+		Utils::AddHook((void*)(Addresses::SpawnPlayActor), SpawnPlayActorHook, (void**)(&SpawnPlayActor));
+		Utils::AddHook((void*)(Addresses::KickPatch), KickPatch, nullptr);
+		Utils::AddHook((LPVOID)(Addresses::CollectGarbageInternal), CollectGarbageInternalHook, (LPVOID*)(CollectGarbageInternal));
+		Utils::AddHook((void*)(Addresses::TickFlush), TickFlushHook, (void**)(&TickFlush));
 	}
 }

@@ -16,13 +16,14 @@ namespace Addresses
 	PBYTE NotifyActorDestroyed = 0;
 	PBYTE InitHost = 0;
 	PBYTE WelcomePlayer = 0;
-	PBYTE SpawnPlayActor = 0;
-	PBYTE WorldNotifyControlMessage = 0;
 	PBYTE BeaconNotifyControlMessage = 0;
 	PBYTE KickPatch = 0;
 	PBYTE InternalTryActivateAbility = 0;
 	PBYTE CollectGarbageInternal = 0;
 	PBYTE OnReload = 0;
+	uintptr_t SpawnPlayActor = 0;
+	uintptr_t WorldNotifyControlMessage = 0;
+	uintptr_t ProcessEvent = 0;
 
 	bool Init()
 	{
@@ -37,21 +38,22 @@ namespace Addresses
 		NotifyActorDestroyed = Utils::FindPattern("\x48\x89\x54\x24\x00\x55\x53\x41\x55\x41\x56\x48\x8d\x6c\x24", "xxxx?xxxxxxxxxx");
 		InitHost = Utils::FindPattern("\x48\x8b\xc4\x48\x81\xec\x00\x00\x00\x00\x48\x89\x58\x00\x4c\x8d\x05", "xxxxxx????xxx?xxx");
 		WelcomePlayer = Utils::FindPattern("\x48\x8b\xc4\x55\x48\x8d\xa8\x00\x00\x00\x00\x48\x81\xec\x00\x00\x00\x00\x48\x89\x70", "xxxxxxx????xxx????xxx");
-		SpawnPlayActor = Utils::FindPattern("\x44\x89\x44\x24\x00\x48\x89\x54\x24\x00\x48\x89\x4c\x24\x00\x55\x53\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8d\x6c\x24", " xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxx");
-		WorldNotifyControlMessage = Utils::FindPattern("\x40\x55\x53\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x45\x33\xF6\x48\x89\x4D\x90\x44\x89\x74\x24\x00\x49\x8B\xD9\x48\x8B\x41\x10\x45\x0F\xB6\xE0\x48\x8B\xF2\x4C\x8B\xE9", "xxxxxxxxxx????xxx????xxxxxxxxxxxx?xxxxxxxxxxxxxxxxx");
 		BeaconNotifyControlMessage = Utils::FindPattern("\x40\x55\x53\x56\x57\x41\x54\x41\x56\x41\x57\x48\x8d\xac\x24\x00\x00\x00\x00\x48\x81\xec\x00\x00\x00\x00\x48\x8b\x05\x00\x00\x00\x00\x48\x33\xc4\x48\x89\x85\x00\x00\x00\x00\x33\xff", "xxxxxxxxxxxxxxx????xxx????xxx????xxxxxx????xx");			
 		KickPatch = Utils::FindPattern("\x40\x53\x56\x48\x81\xec\x00\x00\x00\x00\x48\x8b\xda", "xxxxxx????xxx");
 		InternalTryActivateAbility = Utils::FindPattern("\x4c\x89\x4c\x24\x00\x4c\x89\x44\x24\x00\x89\x54\x24\x00\x55\x56", "xxxx?xxxx?xxx?xx");
 		OnReload = Utils::FindPattern("\x40\x53\x56\x41\x54\x41\x55\x41\x57\x48\x83\xec\x00\x44\x8b\xea", "xxxxxxxxxxxx?xxx");
 		CollectGarbageInternal = Utils::FindPattern("\x48\x8B\xC4\x48\x89\x58\x08\x88\x50\x10", "xxxxxxxxxx");
 
+		SpawnPlayActor = Utils::BaseAddress() + 0x224CD40;
+		WorldNotifyControlMessage = Utils::BaseAddress() + 0x251ADA0;
+		ProcessEvent = Utils::BaseAddress() + 0x1427390;
+
 		if (!CreateChannel || !SetChannelActor || !ReplicateActor || !CallPreReplication || !TickFlush || !SendClientAdjustment
 			|| !ActorChannelClose || !IsNetRelevantFor || !NotifyActorDestroyed || !InitHost || !WelcomePlayer || !SpawnPlayActor
-			|| !WorldNotifyControlMessage || !BeaconNotifyControlMessage || !KickPatch || !InternalTryActivateAbility || !OnReload
-			|| !CollectGarbageInternal)
+			|| !BeaconNotifyControlMessage || !KickPatch || !InternalTryActivateAbility || !OnReload || !CollectGarbageInternal)
 		{
 			Log("Pattern NULL!\n");
-			return false;
+			//return false;
 		}
 
 		Log("Addresses Init.\n");

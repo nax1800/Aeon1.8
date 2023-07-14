@@ -253,10 +253,8 @@ namespace Hooks
 	{
 		Log("Hooks Init.\n");
 
-		auto PEAddr = ((uintptr_t)GetModuleHandle(0)) + 0x1427390;
-		ProcessEvent = decltype(ProcessEvent)(PEAddr);
+		ProcessEvent = decltype(ProcessEvent)(Addresses::ProcessEvent);
 
-		MH_CreateHook(reinterpret_cast<LPVOID>(PEAddr), ProcessEventHook, reinterpret_cast<LPVOID*>(&ProcessEvent));
-		MH_EnableHook(reinterpret_cast<LPVOID>(PEAddr));
+		Utils::AddHook(reinterpret_cast<LPVOID>(Addresses::ProcessEvent), ProcessEventHook, reinterpret_cast<LPVOID*>(&ProcessEvent));
 	}
 }

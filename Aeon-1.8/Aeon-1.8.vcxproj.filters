@@ -77,6 +77,9 @@
     <ClInclude Include="Building.h">
       <Filter>Header Files\Logic</Filter>
     </ClInclude>
+    <ClInclude Include="Watermark.h">
+      <Filter>Header Files\Logic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">

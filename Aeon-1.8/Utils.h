@@ -14,6 +14,12 @@ namespace Utils
 		SetConsoleTitleA("AEON-1.8");
 	}
 
+	void AddHook(LPVOID pTarget, LPVOID pDetour, LPVOID* ppOriginal)
+	{
+		MH_CreateHook(pTarget, pDetour, ppOriginal);
+		MH_EnableHook(pTarget);
+	}
+
 	static BOOL MaskCompare(PVOID pBuffer, LPCSTR lpPattern, LPCSTR lpMask)
 	{
 		for (auto value = static_cast<PBYTE>(pBuffer); *lpMask; ++lpPattern, ++lpMask, ++value)

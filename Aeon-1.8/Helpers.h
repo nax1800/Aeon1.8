@@ -14,7 +14,7 @@ namespace Helpers
 	template<typename T = UObject>
 	T* CastObject(UObject* Object)
 	{
-		return reinterpret_cast<T>(Object);
+		return reinterpret_cast<T*>(Object);
 	}
 
 	string GetPlayerName(AActor* Player)

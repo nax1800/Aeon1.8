@@ -10,13 +10,10 @@ namespace Loot
 	{
 		vector<UFortItemDefinition*> Rifles;
 		for (int i = 0; i < Weapons.size(); i++)
-		{
-			auto Weapon = Weapons[i];
-			if (Weapon->GetFullName().contains("WID_Assault_"))
-			{
-				Rifles.push_back(Weapon);
-			}
-		}
+			if(auto Weapon = Weapons[i])
+				if (Weapon->GetFullName().contains("WID_Assault_"))
+					Rifles.push_back(Weapon);
+
 		int Size = Rifles.size();
 		int Num = rand() % Size;
 		return Rifles[Num];
@@ -27,13 +24,10 @@ namespace Loot
 	{
 		vector<UFortItemDefinition*> Shotguns;
 		for (int i = 0; i < Weapons.size(); i++)
-		{
-			auto Weapon = Weapons[i];
-			if (Weapon->GetFullName().contains("WID_Shotgun_"))
-			{
-				Shotguns.push_back(Weapon);
-			}
-		}
+			if(auto Weapon = Weapons[i])
+				if (Weapon->GetFullName().contains("WID_Shotgun_"))
+					Shotguns.push_back(Weapon);
+
 		int Size = Shotguns.size();
 		int Num = rand() % Size;
 		return Shotguns[Num];
@@ -43,13 +37,10 @@ namespace Loot
 	{
 		vector<UFortItemDefinition*> Snipers;
 		for (int i = 0; i < Weapons.size(); i++)
-		{
-			auto Weapon = Weapons[i];
-			if (Weapon->GetFullName().contains("WID_Sniper_"))
-			{
-				Snipers.push_back(Weapon);
-			}
-		}
+			if(auto Weapon = Weapons[i])
+				if (Weapon->GetFullName().contains("WID_Sniper_"))
+					Snipers.push_back(Weapon);
+
 		int Size = Snipers.size();
 		int Num = rand() % Size;
 		return Snipers[Num];
@@ -73,11 +64,9 @@ namespace Loot
 	bool IsCosumable(UFortItemDefinition* Item)
 	{
 		for (int i = 0; i < Cosumables.size(); i++)
-		{
-			auto Cosumable = Cosumables[i];
-			if (Item == Cosumable)
-				return true;
-		}
+			if(auto Cosumable = Cosumables[i])
+				if (Item == Cosumable)
+					return true;
 
 		return false;
 	}
@@ -93,9 +82,9 @@ namespace Loot
 		return Pool[RandomNum];
 	}
 
-	AFortPickupAthena* SpawnPickup(FVector Location, UFortItemDefinition* ItemDef, int Count)
+	AFortPickup* SpawnPickup(FVector Location, UFortItemDefinition* ItemDef, int Count)
 	{
-		auto A = Globals::GameplayStatics::SpawnActor<AFortPickupAthena>(Location, FRotator());
+		auto A = Globals::GameplayStatics::SpawnActor<AFortPickup>(Location, FRotator());
 		A->PrimaryPickupItemEntry.ItemDefinition = ItemDef;
 		A->PrimaryPickupItemEntry.Count = Count;
 		A->OnRep_PrimaryPickupItemEntry();

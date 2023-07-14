@@ -160,6 +160,7 @@
     <ClInclude Include="SDK.hpp" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="Watermark.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui.cpp" />

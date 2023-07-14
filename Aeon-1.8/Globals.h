@@ -174,6 +174,11 @@ namespace Globals
 		{
 			Get()->STATIC_ExecuteConsoleCommand(World::Get(), Command, nullptr);
 		}
+
+		void LaunchURL(FString URL)
+		{
+			Get()->STATIC_LaunchURL(URL);
+		}
 	}
 
 	namespace KismetMathLibrary
@@ -187,6 +192,12 @@ namespace Globals
 		int RandomIntegerInRange(int Min, int Max)
 		{
 			auto A = Get()->STATIC_RandomIntegerInRange(Min, Max);
+			return A;
+		}
+
+		float RandomFloatInRange(float Min, float Max)
+		{
+			auto A = Get()->STATIC_RandomFloatInRange(Min, Max);
 			return A;
 		}
 	}
