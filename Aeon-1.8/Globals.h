@@ -5,7 +5,7 @@ namespace Globals
 {
 	namespace FortEngine
 	{
-		UFortEngine* Instance;
+		static UFortEngine* Instance;
 
 		UFortEngine* Get()
 		{
@@ -18,14 +18,10 @@ namespace Globals
 
 	namespace World
 	{
-		UWorld* Instance;
-
 		UWorld* Get()
 		{
-			if(!Instance)
-				Instance = FortEngine::Get()->GameViewport->World;
-
-			return Instance;
+			auto A = FortEngine::Get()->GameViewport->World;
+			return A;
 		}
 	}
 
@@ -85,8 +81,7 @@ namespace Globals
 		UGameplayStatics* Get()
 		{
 			if(!Instance)
-				Instance = UObject::FindObject<UGameplayStatics>("GameplayStatics Engine.Default__GameplayStatics");
-
+			Instance = UObject::FindObject<UGameplayStatics>("GameplayStatics Engine.Default__GameplayStatics");
 			return Instance;
 		}
 
@@ -103,8 +98,14 @@ namespace Globals
 			Transform.Scale3D = FVector{ 1,1,1 };
 			Transform.Translation = Location;
 
-			auto Actor = Get()->STATIC_BeginDeferredActorSpawnFromClass(World::Get(), Class, Transform, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn, nullptr);
-			Get()->STATIC_FinishSpawningActor(Actor, Transform);
+			AActor* Actor = nullptr;
+
+			auto GS = Get();
+			if (GS)
+			{
+				Actor = GS->STATIC_BeginDeferredActorSpawnFromClass(World::Get(), Class, Transform, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn, nullptr);
+				GS->STATIC_FinishSpawningActor(Actor, Transform);
+			}
 			return (T*)Actor;
 		}
 

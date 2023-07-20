@@ -6,7 +6,7 @@ namespace Hooks
 	bool bStarted = false;
 
 	void(*ProcessEvent)(void*, void*, void*);
-	void ProcessEventHook(UObject* Object, UFunction* Function, void* Parameters)
+	void __fastcall ProcessEventHook(UObject* Object, UFunction* Function, void* Parameters)
 	{
 		auto FunctionName = Function->GetFullName();
 
@@ -52,7 +52,7 @@ namespace Hooks
 
 		if (FunctionName == "Function GameplayAbilities.AbilitySystemComponent.ServerAbilityRPCBatch")
 		{
-			auto AbilityComp = (UAbilitySystemComponent*)Object;
+			auto AbilityComp = Helpers::CastObject<UAbilitySystemComponent>(Object);
 			auto CurrentParams = (UAbilitySystemComponent_ServerAbilityRPCBatch_Params*)Parameters;
 
 			FGameplayAbilitySpec* FoundSpec = Abilities::FindAbilitySpecFromHandle(AbilityComp, CurrentParams->BatchInfo.AbilitySpecHandle);
@@ -77,15 +77,13 @@ namespace Hooks
 			auto Player = (AFortPlayerController*)Object;
 			auto Params = (AFortPlayerController_ServerAttemptInteract_Params*)Parameters;
 
-			auto ReceivingActor = (ABuildingContainer*)Params->ReceivingActor;
+			auto ReceivingActor = Helpers::CastObject<ABuildingContainer>(Params->ReceivingActor);
 			if (ReceivingActor && Helpers::GetObjectName(ReceivingActor).contains("Tiered_Chest"))
 			{
-				ReceivingActor->bAlreadySearched = true;
-				ReceivingActor->OnRep_bAlreadySearched();
-				ReceivingActor->SearchBounceData.SearchAnimationCount++;
 				auto Location = ReceivingActor->K2_GetActorLocation();
 				Loot::SpawnPickup(Location, Loot::GetRandomWeapon(), 1);
 				Loot::SpawnPickup(Location, Loot::GetRandomCosumable(), 1);
+				ReceivingActor->K2_DestroyActor();
 			}
 		}
 
@@ -185,7 +183,7 @@ namespace Hooks
 
 		if (FunctionName == "Function FortniteGame.FortPlayerController.ServerCreateBuildingActor")
 		{
-			auto Player = (AFortPlayerController*)Object;
+			auto Player = Helpers::CastObject<AFortPlayerControllerAthena>(Object);
 			auto Params = (AFortPlayerController_ServerCreateBuildingActor_Params*)Parameters;
 			if (Params)
 			{

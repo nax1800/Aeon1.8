@@ -14,6 +14,7 @@ namespace Addresses
 	PBYTE IsNetRelevantFor = 0;
 	PBYTE NotifyActorDestroyed = 0;
 	PBYTE InitHost = 0;
+	PBYTE CreateNetDriver = 0;
 	PBYTE WelcomePlayer = 0;
 	PBYTE BeaconNotifyControlMessage = 0;
 	PBYTE KickPatch = 0;
@@ -36,6 +37,7 @@ namespace Addresses
 		IsNetRelevantFor = Utils::FindPattern("\x48\x89\x5c\x24\x00\x48\x89\x74\x24\x00\x55\x57\x41\x57\x48\x8b\xec\x48\x81\xec\x00\x00\x00\x00\x48\x8b\xfa", "xxxx?xxxx?xxxxxxxxxx????xxx");
 		NotifyActorDestroyed = Utils::FindPattern("\x48\x89\x54\x24\x00\x55\x53\x41\x55\x41\x56\x48\x8d\x6c\x24", "xxxx?xxxxxxxxxx");
 		InitHost = Utils::FindPattern("\x48\x8b\xc4\x48\x81\xec\x00\x00\x00\x00\x48\x89\x58\x00\x4c\x8d\x05", "xxxxxx????xxx?xxx");
+		CreateNetDriver = Utils::FindPattern("\x4c\x89\x44\x24\x00\x53\x48\x83\xec\x00\x48\x8b\x81\x00\x00\x00\x00\x4c\x8b\xd2", "xxxx?xxxx?xxx????xxx");
 		WelcomePlayer = Utils::FindPattern("\x48\x8b\xc4\x55\x48\x8d\xa8\x00\x00\x00\x00\x48\x81\xec\x00\x00\x00\x00\x48\x89\x70", "xxxxxxx????xxx????xxx");
 		BeaconNotifyControlMessage = Utils::FindPattern("\x40\x55\x53\x56\x57\x41\x54\x41\x56\x41\x57\x48\x8d\xac\x24\x00\x00\x00\x00\x48\x81\xec\x00\x00\x00\x00\x48\x8b\x05\x00\x00\x00\x00\x48\x33\xc4\x48\x89\x85\x00\x00\x00\x00\x33\xff", "xxxxxxxxxxxxxxx????xxx????xxx????xxxxxx????xx");			
 		KickPatch = Utils::FindPattern("\x40\x53\x56\x48\x81\xec\x00\x00\x00\x00\x48\x8b\xda", "xxxxxx????xxx");
@@ -48,7 +50,7 @@ namespace Addresses
 		ProcessEvent = Utils::BaseAddress() + 0x1427390;
 
 		if (!CreateChannel || !SetChannelActor || !ReplicateActor || !CallPreReplication || !TickFlush || !SendClientAdjustment
-			|| !ActorChannelClose || !IsNetRelevantFor || !NotifyActorDestroyed || !InitHost || !WelcomePlayer || !SpawnPlayActor
+			|| !ActorChannelClose || !IsNetRelevantFor || !NotifyActorDestroyed || !InitHost || !CreateNetDriver || !WelcomePlayer || !SpawnPlayActor
 			|| !BeaconNotifyControlMessage || !KickPatch || !InternalTryActivateAbility || !OnReload || !CollectGarbageInternal)
 		{
 			Log("Pattern NULL!\n");

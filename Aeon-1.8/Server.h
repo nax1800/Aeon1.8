@@ -4,6 +4,7 @@
 namespace Server
 {
 	bool (*InitHost)(AOnlineBeaconHost*);
+	UNetDriver* (*CreateNetDriver)(UEngine*, UWorld*, FName);
 
 	AFortOnlineBeaconHost* BeaconHost;
 	UNetDriver* NetDriver;
@@ -24,8 +25,13 @@ namespace Server
 	void Listen()
 	{
 		InitHost = decltype(InitHost)(Addresses::InitHost);
+		CreateNetDriver = decltype(CreateNetDriver)(Utils::BaseAddress() + 0x24C8F60);
+		/*
+			TODO: Create NetDriver. (No Beacons)
 
-		//TODO: Create NetDriver. (No Beacons)
+			CreateNetDriver Offset = 0x24C8F60;
+			NetDriver = CreateNetDriver(Globals::FortEngine::Get(), Globals::World::Get(), FName(282));
+		*/
 
 		BeaconHost = Globals::GameplayStatics::SpawnActor<AFortOnlineBeaconHost>();
 		BeaconHost->ListenPort = 7777;
