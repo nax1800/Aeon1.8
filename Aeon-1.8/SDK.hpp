@@ -2,6 +2,9 @@
 
 // Fortnite (1.8) SDK
 
+#pragma warning (disable : 4267)
+#pragma warning (disable : 4244)
+
 #include <set>
 #include <string>
 #include <windows.h>

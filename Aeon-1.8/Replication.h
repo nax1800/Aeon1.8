@@ -175,7 +175,7 @@ namespace Replication
 
 	void ReplicateActors(UNetDriver* NetDriver)
 	{
-		++*(DWORD*)(__int64(NetDriver) + 648); //648 
+		++*(DWORD*)(__int64(NetDriver) + 0x288); //648 
 
 		auto NumClientsToTick = PrepConnections(NetDriver);
 

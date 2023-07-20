@@ -5,19 +5,27 @@ namespace Globals
 {
 	namespace FortEngine
 	{
+		UFortEngine* Instance;
+
 		UFortEngine* Get()
 		{
-			auto A = UObject::FindObject<UFortEngine>("FortEngine_");
-			return A;
+			if(!Instance)
+				Instance = UObject::FindObject<UFortEngine>("FortEngine_");
+
+			return Instance;
 		}
 	}
 
 	namespace World
 	{
+		UWorld* Instance;
+
 		UWorld* Get()
 		{
-			auto A = FortEngine::Get()->GameViewport->World;
-			return A;
+			if(!Instance)
+				Instance = FortEngine::Get()->GameViewport->World;
+
+			return Instance;
 		}
 	}
 
@@ -72,10 +80,14 @@ namespace Globals
 
 	namespace GameplayStatics
 	{
+		UGameplayStatics* Instance;
+
 		UGameplayStatics* Get()
 		{
-			auto A = UObject::FindObject<UGameplayStatics>("GameplayStatics Engine.Default__GameplayStatics");
-			return A;
+			if(!Instance)
+				Instance = UObject::FindObject<UGameplayStatics>("GameplayStatics Engine.Default__GameplayStatics");
+
+			return Instance;
 		}
 
 		template<typename T = AActor>
@@ -164,10 +176,14 @@ namespace Globals
 
 	namespace KismetSystemLibrary
 	{
+		UKismetSystemLibrary* Instance;
+
 		UKismetSystemLibrary* Get()
 		{
-			auto A = UObject::FindObject<UKismetSystemLibrary>("KismetSystemLibrary Engine.Default__KismetSystemLibrary");
-			return A;
+			if(!Instance)
+				Instance = UObject::FindObject<UKismetSystemLibrary>("KismetSystemLibrary Engine.Default__KismetSystemLibrary");
+
+			return Instance;
 		}
 
 		void ExecuteCommand(FString Command)
@@ -183,10 +199,14 @@ namespace Globals
 
 	namespace KismetMathLibrary
 	{
+		UKismetMathLibrary* Instance;
+
 		UKismetMathLibrary* Get()
 		{
-			auto A = UObject::FindObject<UKismetMathLibrary>("KismetMathLibrary Engine.Default__KismetMathLibrary");
-			return A;
+			if(!Instance)
+				Instance = UObject::FindObject<UKismetMathLibrary>("KismetMathLibrary Engine.Default__KismetMathLibrary");
+
+			return Instance;
 		}
 
 		int RandomIntegerInRange(int Min, int Max)
@@ -204,10 +224,14 @@ namespace Globals
 
 	namespace KismetTextLibrary
 	{
+		UKismetTextLibrary* Instance;
+
 		UKismetTextLibrary* Get()
 		{
-			auto A = UObject::FindObject<UKismetTextLibrary>("KismetTextLibrary Engine.Default__KismetTextLibrary");
-			return A;
+			if(!Instance)
+				Instance = UObject::FindObject<UKismetTextLibrary>("KismetTextLibrary Engine.Default__KismetTextLibrary");
+
+			return Instance;
 		}
 
 		FText StringToText(FString String)
@@ -226,7 +250,7 @@ namespace Globals
 	UCustomCharacterPart* BodyPart;
 	UCustomCharacterPart* HeadPart;
 
-	bool bEnableMenu = true;	// In-Game Menu.
+	bool bEnableMenu = false;	// In-Game Menu.
 	static bool bLateGame = false;	// Soon (maybe).
 	static bool bEnableCheats = false; // Soon.
 	static bool bSTW = false; // Maybe.

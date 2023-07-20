@@ -8,12 +8,7 @@ namespace Hooks
 	void(*ProcessEvent)(void*, void*, void*);
 	void ProcessEventHook(UObject* Object, UFunction* Function, void* Parameters)
 	{
-		auto FunctionName = Helpers::GetObjectName(Function);
-
-		if (FunctionName.contains("StartButton"))
-		{
-			Log(FunctionName);
-		}
+		auto FunctionName = Function->GetFullName();
 
 		if (FunctionName == "Function AthenaMatchmakingWidget.AthenaMatchmakingWidget_C.BndEvt__BP_PlayButton_K2Node_ComponentBoundEvent_1_CommonButtonClicked__DelegateSignature")
 		{
@@ -74,8 +69,7 @@ namespace Hooks
 		{
 			auto Player = (AFortPlayerController*)Object;
 			auto Pawn = (AFortPlayerPawnAthena*)Player->Pawn;
-
-			CreateThread(0, 0, (LPTHREAD_START_ROUTINE)Abilities::GrantGameplayAbilities, Pawn, 0, 0);
+			Abilities::GrantGameplayAbilities(Pawn);
 		}
 
 		if (FunctionName == "Function FortniteGame.FortPlayerController.ServerAttemptInteract")
@@ -204,47 +198,18 @@ namespace Hooks
 				{
 					BuildingActor->bPlayerPlaced = true;
 					BuildingActor->SetMirrored(Params->bMirrored);
-					BuildingActor->InitializeKismetSpawnedBuildingActor(BuildingActor, Player); // 0x0000000000000016 crash
+					//BuildingActor->InitializeKismetSpawnedBuildingActor(BuildingActor, Player); // 0x0000000000000016 crash
 				}
 			}
 		}
 
-		if (FunctionName == "Function FortniteGame.FortGameModeAthena.OnAircraftEnteredDropZone")
-		{
-			auto GameMode = Globals::GameMode::Get();
-			auto GameState = Globals::GameState::Get();
-			auto Aircraft = GameState->GetAircraft();
-		}
-
-		if (FunctionName == "Function Engine.Actor.ReceiveDestroyed" && Server::BeaconHost)
+		if (FunctionName == "Function Engine.Actor.ReceiveDestroyed")
 		{
 			auto Actor = (AActor*)Object;
 
 			if (NetHooks::NotifyActorDestroyed && Server::NetDriver)
 				NetHooks::NotifyActorDestroyed(Server::NetDriver, Actor, false);
 		}
-
-	/*	if (Server::CheckIfCheat(FunctionName))
-		{
-			Log(FunctionName + "\n");
-			if (FunctionName.contains("PlayerController"))
-			{
-				auto Player = (AFortPlayerControllerAthena*)Object;
-				Log("Possible cheater: " + Helpers::GetPlayerName(Player) + "\n");
-			}
-
-			if (FunctionName.contains("Pawn"))
-			{
-				auto Player = (APlayerPawn_Athena_C*)Object;
-				Log("Possible cheater: " + Helpers::GetPlayerName(Player) + "\n");
-			}
-
-			if (FunctionName.contains("CheatManager"))
-			{
-				auto CheatManager = (UFortCheatManager*)Object;
-				Log("Cheat Manager Function.\n");
-			}
-		}*/
 
 		return ProcessEvent(Object, Function, Parameters);
 	}

@@ -25,6 +25,8 @@ namespace Server
 	{
 		InitHost = decltype(InitHost)(Addresses::InitHost);
 
+		//TODO: Create NetDriver. (No Beacons)
+
 		BeaconHost = Globals::GameplayStatics::SpawnActor<AFortOnlineBeaconHost>();
 		BeaconHost->ListenPort = 7777;
 		if (InitHost(BeaconHost))
@@ -69,5 +71,4 @@ namespace Server
 	void StartBus() { Globals::KismetSystemLibrary::ExecuteCommand(L"startaircraft"); }
 	void StartZone() { Globals::KismetSystemLibrary::ExecuteCommand(L"startsafezone"); }
 	void PauseZone() { Globals::KismetSystemLibrary::ExecuteCommand(L"pausesafezone"); }
-	void Whatever() { }
 }
