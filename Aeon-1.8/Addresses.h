@@ -3,7 +3,6 @@
 
 namespace Addresses
 {
-	vector<PBYTE> Vector;
 
 	PBYTE CreateChannel = 0;
 	PBYTE SetChannelActor = 0;
