@@ -81,7 +81,7 @@ namespace Globals
 		UGameplayStatics* Get()
 		{
 			if(!Instance)
-			Instance = UObject::FindObject<UGameplayStatics>("GameplayStatics Engine.Default__GameplayStatics");
+				Instance = UObject::FindObject<UGameplayStatics>("GameplayStatics Engine.Default__GameplayStatics");
 			return Instance;
 		}
 
@@ -101,20 +101,15 @@ namespace Globals
 			AActor* Actor = nullptr;
 
 			auto GS = Get();
-			if (GS)
-			{
-				Actor = GS->STATIC_BeginDeferredActorSpawnFromClass(World::Get(), Class, Transform, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn, nullptr);
-				GS->STATIC_FinishSpawningActor(Actor, Transform);
-			}
+			Actor = GS->STATIC_BeginDeferredActorSpawnFromClass(World::Get(), Class, Transform, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn, nullptr);
+			GS->STATIC_FinishSpawningActor(Actor, Transform);
 			return (T*)Actor;
 		}
 
 		template<typename T = AActor>
 		T* SpawnActor(FVector Location = {}, FRotator Rotation = {})
 		{
-			auto Class = T::StaticClass();
-
-			auto Actor = SpawnActor<T>(Class, Location, Rotation);
+			auto Actor = SpawnActor<T>(T::StaticClass(), Location, Rotation);
 			return Actor;
 		}
 
@@ -252,13 +247,18 @@ namespace Globals
 	UCustomCharacterPart* HeadPart;
 
 	bool bEnableMenu = false;	// In-Game Menu.
+
+	//Game
 	static bool bLateGame = false;	// Soon (maybe).
 	static bool bEnableCheats = false; // Soon.
-	static bool bSTW = false; // Maybe.
 	static bool bInfiniteAmmo = true;
 	static bool bInfiniteResources = true;
+	static bool bSnipersOnly = false;
+	static bool bSyphon = true;
+	static bool bSTW = false; // Maybe.
+
 	static int MaxPlayers = 10;
-	static int PlaylistID = 2; // 2 = Solo, 
+	static int PlaylistID = 2; // 2 = Solo
 	static int NetSpeed = 30000; // Don't touch
 	static FVector BusLocation = { 2500 , 250, 500 };
 

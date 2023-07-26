@@ -5,6 +5,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <wincrypt.h>
+#include <functional>
 #include <map>
 #include <Psapi.h>
 #include <intrin.h>
@@ -54,7 +56,7 @@ static T* FindObjectFast(string ObjectName, UClass* ObjectClass = UObject::Stati
 #include "Loot.h"
 #include "Inventory.h"
 #include "Player.h"
-#include "Player.h"
+#include "Watermark.h"
 #include "Abilities.h"
 #include "NetHooks.h"
 #include "Hooks.h"

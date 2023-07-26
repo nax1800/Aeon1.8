@@ -32,6 +32,31 @@ namespace Player
 		Pawn->SetHealth(100.0f);
 	}
 
+	void Syphon(APlayerPawn_Athena_C* Pawn)
+	{
+		float Health = Pawn->GetHealth();
+		auto HealthSet = Pawn->HealthSet;
+		float Shield = HealthSet->CurrentShield.CurrentValue;
+		if (Health <= 100.0f)
+		{
+			Health + 50;
+			float ExtraHealth = Health - 100;
+			if (ExtraHealth > 0.0f)
+			{
+				Health - ExtraHealth;
+				if (Shield <= 100.0f)
+				{
+					Shield + ExtraHealth;
+					float ExtraShield = Shield - 100;
+					if (ExtraShield > 0.0f)
+						Shield - ExtraShield;
+
+					HealthSet->CurrentShield.CurrentValue = Shield;
+				}
+			}
+		}
+	}
+
 	APlayerPawn_Generic_C* SpawnSTW(AFortPlayerController* PlayerController, FVector Location)
 	{
 		auto Pawn = Globals::GameplayStatics::SpawnActor<APlayerPawn_Generic_C>(Location);
@@ -133,30 +158,6 @@ namespace Player
 
 	void DropItem(AFortPlayerControllerAthena* Player, AFortPlayerController_ServerSpawnInventoryDrop_Params* Parameters)
 	{
-		auto A = Inventory::GetInventory(Player);
-		auto Count = Parameters->Count;
-		auto ItemGuid = Parameters->ItemGuid;
-		auto ItemInstances = A->Inventory.ItemInstances;
-		auto ReplicatedEntries = A->Inventory.ReplicatedEntries;
-		
-		for (int i = 0; i < ItemInstances.Num(); i++)
-		{
-			auto ItemInstance = ItemInstances[i];
-			auto InstanceGuid = ItemInstance->GetItemGuid();
-
-			if (Helpers::AreGuidsTheSame(ItemGuid, InstanceGuid))
-			{
-				ItemInstances.Remove(i);
-				for (int j = 0; j < ReplicatedEntries.Num(); j++)
-				{
-					auto ReplicatedEntry = ReplicatedEntries[j];
-					if (Helpers::AreGuidsTheSame(ReplicatedEntry.ItemGuid, ItemGuid))
-					{
-						ReplicatedEntries.Remove(j);
-						Loot::SpawnPickup(Player->GetPlayerPawn()->K2_GetActorLocation(), ReplicatedEntry.ItemDefinition, Count);
-					}
-				}
-			}
-		}
+		// Rewrite
 	}
 }

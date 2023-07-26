@@ -3,6 +3,7 @@
 
 namespace Helpers
 {
+
 	static bool AreGuidsTheSame(FGuid guidA, FGuid guidB)
 	{
 		if (guidA.A == guidB.A && guidA.B == guidB.B && guidA.C == guidB.C && guidA.D == guidB.D)

@@ -98,18 +98,16 @@ namespace Inventory
         reinterpret_cast<QuickBarsPointer*>(Player)->QuickBars = NewQuickBars;
         Player->OnRep_QuickBar();
 
-        auto B = GetQuickBars(Player);
-
-        B->EnableSlot(EFortQuickBars::Primary, 0);
-        B->EnableSlot(EFortQuickBars::Primary, 1);
-        B->EnableSlot(EFortQuickBars::Primary, 2);
-        B->EnableSlot(EFortQuickBars::Primary, 3);
-        B->EnableSlot(EFortQuickBars::Primary, 4);
-        B->EnableSlot(EFortQuickBars::Secondary, 0);
-        B->EnableSlot(EFortQuickBars::Secondary, 1);
-        B->EnableSlot(EFortQuickBars::Secondary, 2);
-        B->EnableSlot(EFortQuickBars::Secondary, 3);
-        B->EnableSlot(EFortQuickBars::Secondary, 4);
+        NewQuickBars->EnableSlot(EFortQuickBars::Primary, 0);
+        NewQuickBars->EnableSlot(EFortQuickBars::Primary, 1);
+        NewQuickBars->EnableSlot(EFortQuickBars::Primary, 2);
+        NewQuickBars->EnableSlot(EFortQuickBars::Primary, 3);
+        NewQuickBars->EnableSlot(EFortQuickBars::Primary, 4);
+        NewQuickBars->EnableSlot(EFortQuickBars::Secondary, 0);
+        NewQuickBars->EnableSlot(EFortQuickBars::Secondary, 1);
+        NewQuickBars->EnableSlot(EFortQuickBars::Secondary, 2);
+        NewQuickBars->EnableSlot(EFortQuickBars::Secondary, 3);
+        NewQuickBars->EnableSlot(EFortQuickBars::Secondary, 4);
 
         AddDefaultQuickBarItems(Player);
 

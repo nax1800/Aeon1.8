@@ -3,14 +3,19 @@
 
 namespace NetHooks
 {
-	__int64(*WelcomePlayer)(UWorld* World, UNetConnection* NetConnection);
-	APlayerController* (*SpawnPlayActor)(UWorld* World, UPlayer* Player, ENetRole NetRole, FURL URL, void* a5, FString& Source, uint8_t a7);
-	void(*UWorld_NotifyControlMessage)(UWorld* World, UNetConnection* NetConnection, uint8_t a3, void* a4);
-	void (*TickFlush)(UNetDriver*, float DeltaSeconds);
+	__int64 (*WelcomePlayer)(UWorld*, UNetConnection*);
+	APlayerController* (*SpawnPlayActor)(UWorld*, UPlayer*, ENetRole, FURL, void*, FString&, uint8_t);
+	void(*NotifyControlMessage)(UWorld*, UNetConnection*, uint8_t, void*);
+	void (*TickFlush)(UNetDriver*, float);
 	void (*NotifyActorDestroyed)(UNetDriver*, AActor*, bool);
 	LPVOID(*CollectGarbageInternal)(uint32_t, bool);
 
-	void __fastcall AOnlineBeaconHost_NotifyControlMessageHook(AOnlineBeaconHost* BeaconHost, UNetConnection* NetConnection, uint8_t a3, void* a4)
+	void TickFlushHook(UNetDriver* NetDriver, float DeltaSeconds) { Replication::ReplicateActors(NetDriver); return TickFlush(NetDriver, DeltaSeconds); }
+	__int64 KickPatch(__int64, __int64) { return 0; }
+	LPVOID CollectGarbageInternalHook(uint32_t KeepFlags, bool bPerformFullPurge) { return 0; }
+	__int64 WelcomePlayerHook(UWorld*, UNetConnection* NetConnection) { return WelcomePlayer(Globals::World::Get(), NetConnection); }
+
+	void AOnlineBeaconHost_NotifyControlMessageHook(AOnlineBeaconHost* BeaconHost, UNetConnection* NetConnection, uint8_t a3, void* a4)
 	{
 		if (Server::bBusStarted)
 			return;
@@ -24,27 +29,11 @@ namespace NetHooks
 
 		Log("AOnlineBeaconHost::NotifyControlMessage Called: " + A3 + "\n");
 		Log("OpenChannels Count: " + to_string(NetConnection->OpenChannels.Num()) + "\n");
-		return UWorld_NotifyControlMessage(Globals::World::Get(), NetConnection, a3, a4);
+		return NotifyControlMessage(Globals::World::Get(), NetConnection, a3, a4);
 	}
 
-	void TickFlushHook(UNetDriver* NetDriver, float DeltaSeconds)
-	{
-		Replication::ReplicateActors(NetDriver);
-
-		return TickFlush(NetDriver, DeltaSeconds);
-	}
-
-	__int64 KickPatch(__int64, __int64)
-	{
-		return 0;
-	}
-
-	__int64 __fastcall WelcomePlayerHook(UWorld*, UNetConnection* NetConnection)
-	{
-		return WelcomePlayer(Globals::World::Get(), NetConnection);
-	}
-
-	APlayerController* SpawnPlayActorHook(UWorld*, UNetConnection* Connection, ENetRole NetRole, FURL a4, void* a5, FString& Src, uint8_t a7)
+	bool bFirstPlayerJoined = false;
+	APlayerController* SpawnPlayActorHook(UWorld* World, UNetConnection* Connection, ENetRole NetRole, FURL a4, void* a5, FString& Src, uint8_t a7)
 	{
 		auto PlayerController = (AFortPlayerControllerAthena*)SpawnPlayActor(Globals::World::Get(), Connection, NetRole, a4, a5, Src, a7);
 		Connection->PlayerController = PlayerController;
@@ -52,6 +41,12 @@ namespace NetHooks
 		Connection->OwningActor = PlayerController;
 
 		auto Pawn = Player::Spawn(PlayerController, Server::GetPlayerStart()->K2_GetActorLocation());
+
+		if (!bFirstPlayerJoined)
+		{
+			bFirstPlayerJoined = true;
+			Loot::SpawnFloorLoot();
+		}
 
 		PlayerController->bHasServerFinishedLoading = true;
 		PlayerController->OnRep_bHasServerFinishedLoading();
@@ -92,17 +87,11 @@ namespace NetHooks
 		return PlayerController;
 	}
 
-	LPVOID CollectGarbageInternalHook(uint32_t KeepFlags, bool bPerformFullPurge)
-	{
-		return 0;
-	}
-
-
 	void Init()
 	{
 		Log("NetHooks Init.\n");	
 
-		UWorld_NotifyControlMessage = decltype(UWorld_NotifyControlMessage)(Addresses::WorldNotifyControlMessage);
+		NotifyControlMessage = decltype(NotifyControlMessage)(Addresses::WorldNotifyControlMessage);
 		TickFlush = decltype(TickFlush)(Addresses::TickFlush);
 		SpawnPlayActor = decltype(SpawnPlayActor)(Addresses::SpawnPlayActor);
 		NotifyActorDestroyed = decltype(NotifyActorDestroyed)(Addresses::NotifyActorDestroyed);

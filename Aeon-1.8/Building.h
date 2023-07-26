@@ -44,4 +44,16 @@ namespace Building
 			}
 		}
 	}
+
+	void PlaceBuild(UClass* BuildClass = nullptr, bool bMirrored = false, FVector Location = {}, FRotator Rotation = {})
+	{
+		auto BuildingActor = Globals::GameplayStatics::SpawnActor<ABuildingSMActor>(BuildClass, Location, Rotation);
+		if (BuildingActor)
+		{
+			BuildingActor->DynamicBuildingPlacementType = EDynamicBuildingPlacementType::DestroyAnythingThatCollides;
+			BuildingActor->bPlayerPlaced = true;
+			BuildingActor->SetMirrored(bMirrored);
+			BuildingActor->InitializeKismetSpawnedBuildingActor(BuildingActor, nullptr);
+		}
+	}
 }
