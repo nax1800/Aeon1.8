@@ -39,17 +39,17 @@ namespace Player
 		float Shield = HealthSet->CurrentShield.CurrentValue;
 		if (Health <= 100.0f)
 		{
-			Health + 50;
+			Health += 50;
 			float ExtraHealth = Health - 100;
 			if (ExtraHealth > 0.0f)
 			{
 				Health - ExtraHealth;
 				if (Shield <= 100.0f)
 				{
-					Shield + ExtraHealth;
+					Shield += ExtraHealth;
 					float ExtraShield = Shield - 100;
 					if (ExtraShield > 0.0f)
-						Shield - ExtraShield;
+						Shield -= ExtraShield;
 
 					HealthSet->CurrentShield.CurrentValue = Shield;
 				}
