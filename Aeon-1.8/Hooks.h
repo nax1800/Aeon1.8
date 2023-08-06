@@ -77,14 +77,51 @@ namespace Hooks
 	{
 		auto Player = (AFortPlayerController*)Object;
 		auto Params = (AFortPlayerController_ServerAttemptInteract_Params*)Parameters;
+		auto ReceivingActor = Params->ReceivingActor;
 
-		auto ReceivingActor = Helpers::CastObject<ABuildingContainer>(Params->ReceivingActor);
-		if (ReceivingActor && Helpers::GetObjectName(ReceivingActor).contains("Tiered_Chest"))
+		if (ReceivingActor->IsA(ATiered_Chest_6_Parent_C::StaticClass()) || ReceivingActor->IsA(ATiered_Chest_3_Child_C::StaticClass()))
 		{
-			auto Location = ReceivingActor->K2_GetActorLocation();
-			Loot::SpawnPickup(Location, Loot::GetRandomWeapon(), 1);
-			Loot::SpawnPickup(Location, Loot::GetRandomCosumable(), 1);
-			ReceivingActor->K2_DestroyActor();
+			auto Chest = (ATiered_Chest_3_Child_C*)ReceivingActor;
+			auto Location = Chest->K2_GetActorLocation();
+
+			if (!Chest->bAlreadySearched)
+			{
+				auto Weapon = Loot::GetRandomWeapon();
+				auto Cosumable = Loot::GetRandomCosumable();
+				auto Ammo = Loot::GetWeaponAmmoDefintion(Weapon);
+
+				Loot::SpawnPickup(Location, Weapon, 1);
+				Loot::SpawnPickup(Location, Ammo, Loot::GetWeaponAmmoDropAmount(Weapon));
+				Loot::SpawnPickup(Location, Cosumable, Loot::GetCosumableDropAmount(Cosumable));
+
+				Chest->SetLightVisibility(false);
+				Chest->bStartAlreadySearched_Athena = true;
+				Chest->bAlreadySearched = true;
+				Chest->OnRep_bAlreadySearched();
+				Chest->SearchBounceData.SearchAnimationCount++;
+			}
+		}
+		else if (ReceivingActor->IsA(ATiered_Short_Ammo_3_Parent_C::StaticClass()))
+		{
+			auto AmmoCrate = (ATiered_Short_Ammo_3_Parent_C*)ReceivingActor;
+			auto Location = AmmoCrate->K2_GetActorLocation();
+
+			if (!AmmoCrate->bAlreadySearched)
+			{
+				auto WeaponOne = Loot::GetRandomWeapon();
+				auto AmmoOne = Loot::GetWeaponAmmoDefintion(WeaponOne);
+
+				auto WeaponTwo = Loot::GetRandomWeapon();
+				auto AmmoTwo = Loot::GetWeaponAmmoDefintion(WeaponTwo);
+
+				Loot::SpawnPickup(Location, AmmoOne, Loot::GetWeaponAmmoDropAmount(WeaponOne));
+				Loot::SpawnPickup(Location, AmmoTwo, Loot::GetWeaponAmmoDropAmount(WeaponTwo));
+
+				AmmoCrate->bStartAlreadySearched_Athena = true;
+				AmmoCrate->bAlreadySearched = true;
+				AmmoCrate->OnRep_bAlreadySearched();
+				AmmoCrate->SearchBounceData.SearchAnimationCount++;
+			}
 		}
 
 		return false;
@@ -94,9 +131,6 @@ namespace Hooks
 	{
 		auto Player = Helpers::CastObject<AFortPlayerControllerAthena>(Object);
 		auto Pawn = Player->Pawn;
-
-		if (!Server::bBusStarted)
-			Server::bBusStarted = true;
 
 		if (Player->IsInAircraft())
 		{
@@ -126,6 +160,13 @@ namespace Hooks
 		return false;
 	}
 
+	bool OnAircraftEnteredDropZone(UObject* Object, UFunction* Function, void* Parameters)
+	{
+		Server::bBusStarted = true;
+
+		return false;
+	}
+
 	bool ServerHandlePickup(UObject* Object, UFunction* Function, void* Parameters)
 	{
 		auto Pawn = Helpers::CastObject<APlayerPawn_Athena_C>(Object);
@@ -139,11 +180,10 @@ namespace Hooks
 
 	bool ServerSpawnInventoryDrop(UObject* Object, UFunction* Function, void* Parameters)
 	{
-		auto Player = Helpers::CastObject<AFortPlayerControllerAthena>(Object);
+		auto Player = (AFortPlayerControllerAthena*)Object;
 		auto Params = (AFortPlayerController_ServerSpawnInventoryDrop_Params*)Parameters;
 
-		if (Player)
-			Player::DropItem(Player, Params);
+		Inventory::DropItem(Player, Params->ItemGuid, Params->Count);
 
 		return false;
 	}
@@ -179,9 +219,9 @@ namespace Hooks
 			auto Mirrored = Params->bMirrored;
 
 			if (BuildClass)
-			{
 				Building::PlaceBuild(BuildClass, Mirrored, Location, Rotation);
-			}
+
+			//remove 10 from used mats
 		}
 
 		return false;
@@ -215,6 +255,7 @@ namespace Hooks
 
 			auto DeathReport = Params->DeathReport;
 			DeathReport.bNotifyUI = true;
+
 			auto KillerPawn = (APlayerPawn_Athena_C*)DeathReport.KillerPawn;
 			auto KillerPlayerState = (AFortPlayerStateAthena*)DeathReport.KillerPlayerState;
 			if (KillerPlayerState)
@@ -222,8 +263,12 @@ namespace Hooks
 				DeadState->ClientReportKill(KillerPlayerState->PlayerName);
 				KillerPlayerState->KillScore++;
 				KillerPlayerState->OnRep_Kills();
-				Player::Syphon(KillerPawn);
+
+				if(Globals::bSyphon)
+					Player::Syphon(KillerPawn);
 			}
+
+			//drop everything in inventory.
 		}
 		return false;
 	}
@@ -251,6 +296,11 @@ namespace Hooks
 			auto Player = Helpers::CastObject<AFortPlayerControllerAthena>(Object);
 			auto Params = (AFortPlayerController_ServerSetClientHasFinishedLoading_Params*)Parameters;
 			Player->bHasClientFinishedLoading = Params->bInHasFinishedLoading;
+		}
+
+		if (FunctionName == "Function FortniteGame.BuildingContainer.OnLoot")
+		{
+			Log("Function: BuildingContainer.OnLoot\n");
 		}
 
 		for (auto& Func : Functions)
@@ -283,6 +333,7 @@ namespace Hooks
 		AddFunction("Function FortniteGame.FortPlayerController.ServerAttemptInteract", ServerAttemptInteract);
 		AddFunction("Function FortniteGame.FortPlayerControllerAthena.ServerAttemptAircraftJump", ServerAttemptAircraftJump);
 		AddFunction("Function FortniteGame.FortGameModeAthena.OnAircraftExitedDropZone", OnAircraftExitedDropZone);
+		AddFunction("Function FortniteGame.FortGameModeAthena.OnAircraftEnteredDropZone", OnAircraftEnteredDropZone);
 		AddFunction("Function FortniteGame.FortPlayerPawn.ServerHandlePickup", ServerHandlePickup);
 		AddFunction("Function FortniteGame.FortPlayerController.ServerSpawnInventoryDrop", ServerSpawnInventoryDrop);
 		AddFunction("Function FortniteGame.FortPlayerController.ServerExecuteInventoryItem", ServerExecuteInventoryItem);
@@ -290,6 +341,6 @@ namespace Hooks
 		AddFunction("Function Engine.Actor.ReceiveDestroyed", ReceiveDestroyed);
 		AddFunction("Function FortniteGame.FortPlayerControllerZone.ClientOnPawnDied", ClientOnPawnDied);
 
-		Utils::AddHook(reinterpret_cast<LPVOID>(Addresses::ProcessEvent), ProcessEventHook, reinterpret_cast<LPVOID*>(&ProcessEvent));
+		Utils::AddHook((void*)Addresses::ProcessEvent, ProcessEventHook, (void**)&ProcessEvent);
 	}
 }

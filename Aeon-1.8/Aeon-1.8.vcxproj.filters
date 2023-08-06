@@ -122,5 +122,6 @@
     <ClCompile Include="kiero\minhook\src\buffer.c">
       <Filter>Minhook</Filter>
     </ClCompile>
+    <ClCompile Include="SDK\FN_Tiered_Chest_6_Parent_functions.cpp" />
   </ItemGroup>
 </Project>

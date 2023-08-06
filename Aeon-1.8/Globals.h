@@ -246,7 +246,7 @@ namespace Globals
 	UCustomCharacterPart* BodyPart;
 	UCustomCharacterPart* HeadPart;
 
-	bool bEnableMenu = false;	// In-Game Menu.
+	bool bEnableMenu = true;	// In-Game Menu.
 
 	//Game
 	static bool bLateGame = false;	// Soon (maybe).
@@ -254,7 +254,7 @@ namespace Globals
 	static bool bInfiniteAmmo = true;
 	static bool bInfiniteResources = true;
 	static bool bSnipersOnly = false;
-	static bool bSyphon = true;
+	static bool bSyphon = false;
 	static bool bSTW = false; // Maybe.
 
 	static int MaxPlayers = 10;

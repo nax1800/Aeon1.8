@@ -38,7 +38,49 @@ namespace Inventory
         B->OnRep_SecondaryQuickBar();
     }
 
-    void AddItem(AFortPlayerControllerAthena* Player, UFortItemDefinition* ItemDef, int Count, EFortQuickBars QuickBar, int Slot)
+    int GetItemSlot(AFortPlayerControllerAthena* Player, FGuid ItemGuid)
+    {
+        auto PrimaryQuickBar = GetQuickBars(Player)->PrimaryQuickBar;
+        auto Slots = PrimaryQuickBar.Slots;
+        for (int i = 0; i < Slots.Num(); i++)
+        {
+            if (Slots[i].Items.Data != nullptr && Helpers::AreGuidsTheSame(Slots[i].Items[0], ItemGuid)) 
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    int GetOpenSlot(AFortPlayerControllerAthena* Player)
+    {
+        auto PrimaryQuickBar = GetQuickBars(Player)->PrimaryQuickBar;
+        auto Slots = PrimaryQuickBar.Slots;
+
+        for (int i = 0; i < Slots.Num(); i++)
+        {
+            auto Slot = Slots[i];
+            if (Slot.Items.Data == nullptr)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    bool IsSlotOpen(AFortPlayerControllerAthena* Player, int Slot)
+    {
+        auto PrimaryQuickBar = GetQuickBars(Player)->PrimaryQuickBar;
+        auto Slots = PrimaryQuickBar.Slots;
+
+        if (Slots[Slot].Items.Data == nullptr) 
+            return true;
+
+        return false;
+    }
+
+    void AddItem(AFortPlayerControllerAthena* Player, UFortItemDefinition* ItemDef, int Count, EFortQuickBars QuickBar, int Slot, bool bAddToQuickbar = true)
     {
         auto A = GetInventory(Player);
         auto B = GetQuickBars(Player);
@@ -48,8 +90,8 @@ namespace Inventory
         WorldItem->ItemEntry.Count = Count;
         A->Inventory.ReplicatedEntries.Add(WorldItem->ItemEntry);
         A->Inventory.ItemInstances.Add(WorldItem);
-        if(QuickBar < EFortQuickBars::EFortQuickBars_MAX)
-            B->ServerAddItemInternal(WorldItem->GetItemGuid(), QuickBar, Slot);
+        if(bAddToQuickbar)
+         B->ServerAddItemInternal(WorldItem->GetItemGuid(), QuickBar, Slot);
         UpdateInventory(Player);
     }
 
@@ -69,7 +111,7 @@ namespace Inventory
         static auto Roof = FindObjectFast<UFortBuildingItemDefinition>("/Game/Items/Weapons/BuildingTools/BuildingItemData_RoofS.BuildingItemData_RoofS");
         static auto Wood = UObject::FindObject<UFortResourceItemDefinition>("FortResourceItemDefinition WoodItemData.WoodItemData");
 
-        AddItem(Player, EditTool, 1, EFortQuickBars::EFortQuickBars_MAX, 0);
+        AddItem(Player, EditTool, 1, EFortQuickBars::Secondary, 0, false);
 
         if(!Globals::bInfiniteResources)
         AddItem(Player, Wood, 100, EFortQuickBars::Secondary, 0);
@@ -143,4 +185,42 @@ namespace Inventory
 
         return nullptr;
     }
-};
+
+    void DropItem(AFortPlayerControllerAthena* Player, FGuid ItemGuid, int Count)
+    {
+            auto A = GetInventory(Player);
+            auto B = GetQuickBars(Player);
+            int Slot = GetItemSlot(Player, ItemGuid);
+
+            UFortItemDefinition* ItemDefintion = nullptr;
+                auto ItemInstances = A->Inventory.ItemInstances;
+                auto ReplicatedEntries = A->Inventory.ReplicatedEntries;
+
+                for (int i = 0; i < ItemInstances.Num(); i++)
+                {
+                    auto ItemInstance = ItemInstances[i];
+                    if (Helpers::AreGuidsTheSame(ItemInstance->GetItemGuid(), ItemGuid))
+                    {
+                        ItemInstances.Remove(i);
+
+                        for (int j = 0; j < ReplicatedEntries.Num(); j++)
+                        {
+                            auto ReplicatedEntry = ReplicatedEntries[j];
+                            if (Helpers::AreGuidsTheSame(ReplicatedEntry.ItemGuid, ItemGuid))
+                            {
+                                ItemDefintion = ReplicatedEntry.ItemDefinition;
+                                ReplicatedEntries.Remove(j);
+                                Log("Removed Item.\n");
+                            }
+                        }
+                    }
+                }
+
+                B->ServerRemoveItemInternal(ItemGuid, false, true);
+                B->EmptySlot(EFortQuickBars::Primary, Slot);
+                B->PrimaryQuickBar.Slots[Slot].Items.Data = nullptr;
+                UpdateInventory(Player);
+
+                Loot::SpawnPickup(Player->K2_GetActorLocation(), ItemDefintion, Count);
+            }
+}

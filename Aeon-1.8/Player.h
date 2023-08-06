@@ -32,47 +32,29 @@ namespace Player
 		Pawn->SetHealth(100.0f);
 	}
 
-	void Syphon(APlayerPawn_Athena_C* Pawn)
+	void Syphon(APlayerPawn_Athena_C* Pawn) //fucking dumb code but whatever
 	{
 		float Health = Pawn->GetHealth();
 		auto HealthSet = Pawn->HealthSet;
 		float Shield = HealthSet->CurrentShield.CurrentValue;
 		if (Health <= 100.0f)
 		{
-			Health + 50;
-			float ExtraHealth = Health - 100;
+			Health += 50;
+			float ExtraHealth = Health -= 100;
 			if (ExtraHealth > 0.0f)
 			{
-				Health - ExtraHealth;
+				Health -= ExtraHealth;
 				if (Shield <= 100.0f)
 				{
-					Shield + ExtraHealth;
+					Shield += ExtraHealth;
 					float ExtraShield = Shield - 100;
 					if (ExtraShield > 0.0f)
-						Shield - ExtraShield;
+						Shield -= ExtraShield;
 
 					HealthSet->CurrentShield.CurrentValue = Shield;
 				}
 			}
 		}
-	}
-
-	APlayerPawn_Generic_C* SpawnSTW(AFortPlayerController* PlayerController, FVector Location)
-	{
-		auto Pawn = Globals::GameplayStatics::SpawnActor<APlayerPawn_Generic_C>(Location);
-		Pawn->SetOwner(PlayerController);
-		PlayerController->Possess(Pawn);
-
-		PlayerController->ClientForceProfileQuery();
-
-		((AFortPlayerStateOutpost*)PlayerController->PlayerState)->OnRep_CharacterParts();
-
-		Pawn->CharacterMovement->bReplicates = true;
-		Pawn->SetReplicateMovement(true);
-		Pawn->OnRep_ReplicatedBasedMovement();
-		Pawn->OnRep_ReplicatedMovement();
-
-		return Pawn;
 	}
 
 	//Athena
@@ -88,9 +70,11 @@ namespace Player
 
 		PlayerController->ClientForceProfileQuery();
 
+		auto PlayerState = ((AFortPlayerStateAthena*)PlayerController->PlayerState);
+
 		Pawn->ServerChoosePart(EFortCustomPartType::Body, Globals::BodyPart);
 		Pawn->ServerChoosePart(EFortCustomPartType::Head, Globals::HeadPart);
-		((AFortPlayerStateAthena*)PlayerController->PlayerState)->OnRep_CharacterParts();
+		PlayerState->OnRep_CharacterParts();
 
 		Pawn->CharacterMovement->bReplicates = true;
 		Pawn->SetReplicateMovement(true);
@@ -105,59 +89,59 @@ namespace Player
 			auto Player = (AFortPlayerControllerAthena*)Pawn->Controller;
 			if (Player)
 			{
-				auto WorldInventory = reinterpret_cast<InventoryPointer*>(Player)->WorldInventory;
-				auto QuickBars = reinterpret_cast<QuickBarsPointer*>(Player)->QuickBars;
-				if (WorldInventory)
+				int Slot = Inventory::GetOpenSlot(Player);
+
+				if (Slot > -1)
 				{
-					auto PickupEntry = Parameters->Pickup->PrimaryPickupItemEntry;
-					auto PickupDef = PickupEntry.ItemDefinition;
-
-					int Count = 0;
-
-					for (int i = 0; i < WorldInventory->Inventory.ItemInstances.Num(); i++)
+					auto WorldInventory = Inventory::GetInventory(Player);
+					auto QuickBars = Inventory::GetQuickBars(Player);
+					if (WorldInventory)
 					{
-						auto ItemInstance = WorldInventory->Inventory.ItemInstances[i];
+						auto PickupEntry = Parameters->Pickup->PrimaryPickupItemEntry;
+						auto PickupDef = PickupEntry.ItemDefinition;
 
-						if (ItemInstance->GetItemDefinitionBP() == PickupDef && !PickupDef->IsA(UFortWeaponItemDefinition::StaticClass()))
+						int Count = 0;
+
+						for (int i = 0; i < WorldInventory->Inventory.ItemInstances.Num(); i++)
 						{
-							WorldInventory->Inventory.ItemInstances.Remove(i);
+							auto ItemInstance = WorldInventory->Inventory.ItemInstances[i];
 
-							for (int j = 0; j < WorldInventory->Inventory.ReplicatedEntries.Num(); j++)
+							if (ItemInstance->GetItemDefinitionBP() == PickupDef && !PickupDef->IsA(UFortWeaponItemDefinition::StaticClass()))
 							{
-								auto Entry = WorldInventory->Inventory.ReplicatedEntries[j];
+								WorldInventory->Inventory.ItemInstances.Remove(i);
 
-								if (Entry.ItemDefinition == PickupDef && !PickupDef->IsA(UFortWeaponItemDefinition::StaticClass()))
+								for (int j = 0; j < WorldInventory->Inventory.ReplicatedEntries.Num(); j++)
 								{
-									WorldInventory->Inventory.ReplicatedEntries.Remove(j);
-									Count = Entry.Count;
+									auto Entry = WorldInventory->Inventory.ReplicatedEntries[j];
+
+									if (Entry.ItemDefinition == PickupDef && !PickupDef->IsA(UFortWeaponItemDefinition::StaticClass()))
+									{
+										WorldInventory->Inventory.ReplicatedEntries.Remove(j);
+										Count = Entry.Count;
+									}
 								}
 							}
 						}
+
+						auto NewPickupWorldItem = (UFortWorldItem*)PickupDef->CreateTemporaryItemInstanceBP(PickupEntry.Count + Count, 1);
+						NewPickupWorldItem->ItemEntry = PickupEntry;
+						NewPickupWorldItem->ItemEntry.Count = PickupEntry.Count + Count;
+						NewPickupWorldItem->bTemporaryItemOwningController = true;
+						NewPickupWorldItem->SetOwningControllerForTemporaryItem(Player);
+
+						WorldInventory->Inventory.ItemInstances.Add(NewPickupWorldItem);
+						WorldInventory->Inventory.ReplicatedEntries.Add(NewPickupWorldItem->ItemEntry);
+
+						Inventory::UpdateInventory(Player);
+
+						auto statval = new FFortItemEntryStateValue;
+						statval->IntValue = NewPickupWorldItem->ItemEntry.Count;
+						statval->StateType = EFortItemEntryState::NewItemCount;
+						statval->NameValue = FName("Item");
+						Player->ServerSetInventoryStateValue(NewPickupWorldItem->GetItemGuid(), (*statval));
+						QuickBars->ServerAddItemInternal(NewPickupWorldItem->GetItemGuid(), EFortQuickBars::Primary, Slot);
 					}
-
-					auto NewPickupWorldItem = (UFortWorldItem*)PickupDef->CreateTemporaryItemInstanceBP(PickupEntry.Count + Count, 1);
-					NewPickupWorldItem->ItemEntry = PickupEntry;
-					NewPickupWorldItem->ItemEntry.Count = PickupEntry.Count + Count;
-					NewPickupWorldItem->bTemporaryItemOwningController = true;
-					NewPickupWorldItem->SetOwningControllerForTemporaryItem(Player);
-
-					WorldInventory->Inventory.ItemInstances.Add(NewPickupWorldItem);
-					WorldInventory->Inventory.ReplicatedEntries.Add(NewPickupWorldItem->ItemEntry);
-
-					Inventory::UpdateInventory(Player);
-
-					auto statval = new FFortItemEntryStateValue;
-					statval->IntValue = NewPickupWorldItem->ItemEntry.Count;
-					statval->StateType = EFortItemEntryState::NewItemCount;
-					statval->NameValue = FName("Item");
-					Player->ServerSetInventoryStateValue(NewPickupWorldItem->GetItemGuid(), (*statval));
-					QuickBars->ServerAddItemInternal(NewPickupWorldItem->GetItemGuid(), EFortQuickBars::Primary, QuickBars->PrimaryQuickBar.SecondaryFocusedSlot);
 				}
 			}
-	}
-
-	void DropItem(AFortPlayerControllerAthena* Player, AFortPlayerController_ServerSpawnInventoryDrop_Params* Parameters)
-	{
-		// Rewrite
 	}
 }

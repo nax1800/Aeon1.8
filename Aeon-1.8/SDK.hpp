@@ -4,6 +4,7 @@
 
 #pragma warning (disable : 4267)
 #pragma warning (disable : 4244)
+#pragma warning (disable : 26495)
 
 #include <set>
 #include <string>

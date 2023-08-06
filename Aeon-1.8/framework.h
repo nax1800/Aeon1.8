@@ -26,7 +26,7 @@ using namespace std;
 
 void Log(string ToLog)
 {
-	cout << hue::green << "LogAeon:Info: " << ToLog << hue::white;
+	cout << hue::light_purple << "[AEON] : " << ToLog << hue::white;
 }
 
 static auto StaticLoadObjectInternal = reinterpret_cast<UObject * (*)(UClass * InClass, UObject * InOuter, const TCHAR * Name, const TCHAR * FileName, uint32_t LoadFlags, UPackageMap * Sandbox, bool bAllowObjectReconciliation)>(uintptr_t(GetModuleHandle(NULL)) + 0x142EE30);
@@ -40,10 +40,8 @@ static T* StaticLoadObject(const TCHAR* InPath)
 template <typename T>
 static T* FindObjectFast(string ObjectName, UClass* ObjectClass = UObject::StaticClass())
 {
-	auto OrigInName = wstring(ObjectName.begin(), ObjectName.end()).c_str();
-
 	auto StaticFindObject = (T * (*)(UClass*, UObject * Package, const wchar_t* OrigInName, bool ExactClass))((uintptr_t)GetModuleHandleA(0) + 0x142D2E0);
-	return StaticFindObject(ObjectClass, nullptr, OrigInName, false);
+	return StaticFindObject(ObjectClass, nullptr, wstring(ObjectName.begin(), ObjectName.end()).c_str(), false);
 }
 
 #include "Utils.h"

@@ -61,6 +61,45 @@ namespace Loot
 		return Cosumables[RandomNum];
 	}
 
+	UFortWorldItemDefinition* GetWeaponAmmoDefintion(UFortItemDefinition* Weapon)
+	{
+		auto Ammo = ((UFortWorldItemDefinition*)Weapon)->GetAmmoWorldItemDefinition_BP();
+
+		if (Ammo)
+			return Ammo;
+
+		return nullptr;
+	}
+
+	int GetCosumableDropAmount(UFortItemDefinition* Cosumable)
+	{
+		auto CosumableName = Cosumable->GetName();
+
+		if (CosumableName == "Athena_Bandage")
+			return 5;
+		else if (CosumableName == "Athena_Grenade")
+			return 3;
+		else if (CosumableName == "Athena_Medkit" || CosumableName == "Athena_Shields")
+			return 1;
+
+		return 0;
+	}
+
+	int GetWeaponAmmoDropAmount(UFortItemDefinition* _Weapon)
+	{
+		auto Weapon = (UFortWorldItemDefinition*)_Weapon;
+		auto Ammo = GetWeaponAmmoDefintion(Weapon);
+
+		if (Ammo)
+		{
+			int DropCount = Ammo->DropCount;
+			Log(_Weapon->GetName() + " - Ammo Drop Amount: " + to_string(DropCount) + ".\n");
+			return DropCount;
+		}
+
+		return 0;
+	}
+
 	bool IsCosumable(UFortItemDefinition* Item)
 	{
 		for (int i = 0; i < Cosumables.size(); i++)
@@ -77,7 +116,7 @@ namespace Loot
 		for (int i = 0; i < Weapons.size(); i++) { Pool.push_back(Weapons[i]); }
 		for (int i = 0; i < Cosumables.size(); i++) { Pool.push_back(Cosumables[i]); }
 
-		auto PoolSize = Pool.size();
+		auto PoolSize = Pool.size() + 1;
 		auto RandomNum = rand() % PoolSize;
 		return Pool[RandomNum];
 	}
@@ -96,7 +135,7 @@ namespace Loot
 	{
 		auto Containers = Globals::GameplayStatics::GetActors<ATiered_Athena_FloorLoot_01_C>();
 		int Count = Containers.Num();
-		Log("Floor Loot Containers: " + to_string(Count));
+		Log("Floor Loot Containers: " + to_string(Count) + "\n");
 		for (int i = 0; i < Count; i++)
 		{
 			auto Container = Containers[i];
